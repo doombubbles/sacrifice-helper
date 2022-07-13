@@ -3,6 +3,7 @@ using Assets.Scripts.Simulation.Towers.Behaviors;
 using BTD_Mod_Helper;
 using BTD_Mod_Helper.Api.Enums;
 using BTD_Mod_Helper.Api.ModOptions;
+using BTD_Mod_Helper.Extensions;
 using HarmonyLib;
 using MelonLoader;
 using SacrificeHelper;

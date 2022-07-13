@@ -2,7 +2,7 @@
 
 # Sacrifice Helper
 
-## NOTE: This version of the mod requires BTD6 Mod Helper >v3.0 and MelonLoader >v0.6
+## NOTE: This alpha version of the mod requires BTD6 Mod Helper >v3.0, see [here](https://github.com/doombubbles/BTD6-Mods#readme) for the stable mods
 
 ## NEW 2.0 VERSION
 
