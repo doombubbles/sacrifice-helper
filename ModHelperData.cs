@@ -2,7 +2,7 @@
 
 public static class ModHelperData
 {
-    public const string Version = "2.2.1";
+    public const string Version = "2.2.2";
     public const string Name = "Sacrifice Helper";
 
     public const string Description =
