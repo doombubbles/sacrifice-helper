@@ -3,7 +3,7 @@
         <TargetFramework>net48</TargetFramework>
         <RootNamespace>SacrificeHelper</RootNamespace>
         <Configurations>Debug;Release</Configurations>
-        <Nullable>enable</Nullable>
+        <Nullable>warnings</Nullable>
         <AssemblyName>SacrificeHelper</AssemblyName>
         <LangVersion>latest</LangVersion>
     </PropertyGroup>

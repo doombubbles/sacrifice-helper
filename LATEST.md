@@ -1,0 +1,2 @@
+- Updated to Mod Helper 3.0
+- Fixed for BTD6 v32.0
