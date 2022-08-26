@@ -1,2 +1,5 @@
-- Updated to Mod Helper 3.0
-- Fixed for BTD6 v32.0
+- Internal revamp of UI code
+- Added paragon bonus power indicator (from those Geraldo items)
+- You can now click on the paragon power indicator icons to be told your progress toward the maximum
+- Fixed issue with Paragon sacrifices not destroying towers
+- Fixed issue with degree calculations for extra tier 5 towers (apparently the upgrade cost of the Paragon starts being included in the sacrifice once you have more than three tier 5s lol)

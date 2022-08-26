@@ -1,13 +1,14 @@
 ﻿using Assets.Scripts.Models;
 using Assets.Scripts.Simulation.Towers.Behaviors;
+using Assets.Scripts.Unity.UI_New.InGame.TowerSelectionMenu;
 using BTD_Mod_Helper;
+using BTD_Mod_Helper.Api;
+using BTD_Mod_Helper.Api.Components;
 using BTD_Mod_Helper.Api.Enums;
 using BTD_Mod_Helper.Api.ModOptions;
-using BTD_Mod_Helper.Extensions;
 using HarmonyLib;
 using MelonLoader;
 using SacrificeHelper;
-using UnityEngine;
 
 [assembly: MelonInfo(typeof(SacrificeHelperMod), ModHelperData.Name, ModHelperData.Version, ModHelperData.RepoOwner)]
 [assembly: MelonGame("Ninja Kiwi", "BloonsTD6")]
@@ -16,82 +17,103 @@ namespace SacrificeHelper;
 
 public class SacrificeHelperMod : BloonsTD6Mod
 {
-    public const string SunTemple = "Sun Temple";
-    public const string TrueSunGod = "True Sun God";
-
-    public static readonly ModSettingInt TempleAlternateCost = new(50000)
-    {
-        displayName = "Alternate Sun Temple Cost",
-        min = 0,
-        icon = VanillaSprites.SunTempleUpgradeIcon,
-        description = "The reduced cost for if you decide to get a Sun Temple without doing sacrifices"
-    };
-
-    public static readonly ModSettingInt GodAlternateCost = new(100000)
-    {
-        displayName = "Alternate True Sun God Cost",
-        min = 0,
-        icon = VanillaSprites.TrueSonGodUpgradeIcon,
-        description = "The reduced cost for if you decide to get a True Sun God without doing sacrifices"
-    };
+    public static readonly ModSettingCategory ParagonPowerMaximums = new("Paragon Power Maximums");
 
     public static readonly ModSettingInt MaxFromPops = new(90000)
     {
         displayName = "Max Paragon Power From Pops\n(-1 for unlimited)",
         min = -1,
-        icon = VanillaSprites.PopIcon
+        icon = VanillaSprites.PopIcon,
+        category = ParagonPowerMaximums
     };
 
     public static readonly ModSettingInt MaxFromCash = new(10000)
     {
         displayName = "Max Paragon Power From Cash\n(-1 for unlimited)",
         min = -1,
-        icon = VanillaSprites.Gold2
+        icon = VanillaSprites.CoinIcon,
+        category = ParagonPowerMaximums
     };
 
     public static readonly ModSettingInt MaxFromNonTier5s = new(10000)
     {
         displayName = "Max Paragon Power From Non Tier 5s\n(-1 for unlimited)",
         min = -1,
-        icon = VanillaSprites.UpgradeContainerBlue
+        icon = VanillaSprites.UpgradeContainerGrey,
+        modifyOption = option => option.Icon.AddText(new Info("Text", InfoPreset.FillParent), "<5", 100),
+        category = ParagonPowerMaximums
     };
 
     public static readonly ModSettingInt MaxFromTier5s = new(90000)
     {
         displayName = "Max Paragon Power From Tier 5s\n(-1 for unlimited)",
         min = -1,
-        icon = VanillaSprites.UpgradeContainerTier5
+        icon = VanillaSprites.UpgradeContainerTier5,
+        modifyOption = option => option.Icon.AddText(new Info("Text", InfoPreset.FillParent), "5", 100),
+        category = ParagonPowerMaximums
     };
+
+    public static readonly ModSettingCategory ParagonPowerWeights = new("Paragon Power Weights");
 
     private static readonly ModSettingInt PopsPerPoint = new(180)
     {
         displayName = "Pops per Point of Paragon Power",
         min = 1,
-        icon = VanillaSprites.PopIcon
+        icon = VanillaSprites.PopIcon,
+        category = ParagonPowerWeights
     };
 
     private static readonly ModSettingInt CashPerPoint = new(25)
     {
         displayName = "Cash per Point of Paragon Power",
         min = 1,
-        icon = VanillaSprites.Gold2
+        icon = VanillaSprites.CoinIcon,
+        category = ParagonPowerWeights
     };
 
     private static readonly ModSettingInt NonTier5sScaleFactor = new(100)
     {
         displayName = "Paragon Power Scale Factor for Non Tier 5s",
         min = 0,
-        icon = VanillaSprites.UpgradeContainerBlue
+        icon = VanillaSprites.UpgradeContainerGrey,
+        modifyOption = option => option.Icon.AddText(new Info("Text", InfoPreset.FillParent), "<5", 100),
+        category = ParagonPowerWeights
     };
 
     private static readonly ModSettingInt Tier5sScaleFactor = new(10000)
     {
         displayName = "Paragon Power Scale Factor for Tier 5s",
         min = 0,
-        icon = VanillaSprites.UpgradeContainerTier5
+        icon = VanillaSprites.UpgradeContainerTier5,
+        modifyOption = option => option.Icon.AddText(new Info("Text", InfoPreset.FillParent), "5", 100),
+        category = ParagonPowerWeights
     };
 
-    public static bool templeSacrificesOff = false;
+    public static readonly ModSettingCategory TempleAlternateCosts = new("Template Alternate Costs");
+
+    public static readonly ModSettingDouble TempleAlternateCostMod = new(.5)
+    {
+        displayName = "Alternate Sun Temple Cost",
+        min = 0,
+        max = 1,
+        stepSize = .01f,
+        icon = VanillaSprites.SunTempleUpgradeIcon,
+        description = "What portion the cost should be if you decide to get a Sun Temple without doing sacrifices",
+        category = TempleAlternateCosts
+    };
+
+    public static readonly ModSettingDouble GodAlternateCostMod = new(.2)
+    {
+        displayName = "Alternate True Sun God Cost",
+        min = 0,
+        max = 1,
+        stepSize = .01f,
+        icon = VanillaSprites.TrueSonGodUpgradeIcon,
+        description = "What portion the cost should be if you decide to get a True Sun God without doing sacrifices",
+        category = TempleAlternateCosts
+    };
+
+    public static bool templeSacrificesOff;
 
     public override void OnNewGameModel(GameModel result)
     {
@@ -123,78 +145,39 @@ public class SacrificeHelperMod : BloonsTD6Mod
         result.paragonDegreeDataModel.moneySpentOverX = CashPerPoint;
         result.paragonDegreeDataModel.nonTier5TowersMultByX = NonTier5sScaleFactor;
         result.paragonDegreeDataModel.tier5TowersMultByX = Tier5sScaleFactor;
-    }
 
-    public override void OnGameObjectsReset()
-    {
-        if (TSMThemeChanges.templeText != null)
-        {
-            foreach (var (_, text) in TSMThemeChanges.templeText)
-            {
-                Object.Destroy(text);
-            }
-
-            TSMThemeChanges.templeText = null;
-        }
-
-
-        if (TSMThemeChanges.templeIcons != null)
-        {
-            foreach (var (_, icon) in TSMThemeChanges.templeIcons)
-            {
-                Object.Destroy(icon);
-            }
-
-            TSMThemeChanges.templeIcons = null;
-        }
-
-        if (TSMThemeChanges.templeInfoButton != null)
-        {
-            Object.Destroy(TSMThemeChanges.templeInfoButton);
-            TSMThemeChanges.templeInfoButton = null;
-        }
-
-        if (TSMThemeChanges.paragonButton != null)
-        {
-            Object.Destroy(TSMThemeChanges.paragonButton);
-            TSMThemeChanges.paragonButton = null;
-        }
-
-        if (TSMThemeChanges.paragonButtonText != null)
-        {
-            Object.Destroy(TSMThemeChanges.paragonButtonText);
-            TSMThemeChanges.paragonButtonText = null;
-        }
-
-        if (TSMThemeChanges.paragonText != null)
-        {
-            foreach (var (_, text) in TSMThemeChanges.paragonText)
-            {
-                Object.Destroy(text);
-            }
-
-            TSMThemeChanges.paragonText = null;
-        }
-
-
-        if (TSMThemeChanges.paragonIcons != null)
-        {
-            foreach (var (_, icon) in TSMThemeChanges.paragonIcons)
-            {
-                Object.Destroy(icon);
-            }
-
-            TSMThemeChanges.paragonIcons = null;
-        }
+        templeSacrificesOff = false;
     }
 
     [HarmonyPatch(typeof(MonkeyTemple), nameof(MonkeyTemple.StartSacrifice))]
     public class MonkeyTemple_StartSacrifice
     {
         [HarmonyPrefix]
-        public static bool Prefix()
+        public static bool Prefix() => !templeSacrificesOff;
+    }
+
+    [HarmonyPatch(typeof(TowerSelectionMenu), nameof(TowerSelectionMenu.UpdateTower))]
+    internal static class TowerSelectionMenu_UpdateTower
+    {
+        [HarmonyPostfix]
+        private static void Postfix(TowerSelectionMenu __instance)
         {
-            return !templeSacrificesOff;
+            var themeManager = __instance.themeManager;
+            var currentTheme = themeManager.CurrentTheme;
+            if (currentTheme == null)
+            {
+                TaskScheduler.ScheduleTask(() => Postfix(__instance), () => themeManager.CurrentTheme != null);
+                return;
+            }
+
+            var ui = currentTheme.GetComponent<SacrificeHelperUI>();
+            if (ui == null)
+            {
+                ui = currentTheme.gameObject.AddComponent<SacrificeHelperUI>();
+                ui.Initialise(themeManager);
+            }
+
+            ui.TowerInfoChanged();
         }
     }
 }

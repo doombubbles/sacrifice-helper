@@ -1,41 +1,43 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using Assets.Scripts.Models.Towers.Behaviors;
 using Assets.Scripts.Models.Towers.Upgrades;
 using Assets.Scripts.Simulation.Towers;
 using Assets.Scripts.Simulation.Towers.Behaviors;
 using Assets.Scripts.Unity.Bridge;
 using Assets.Scripts.Unity.UI_New.InGame;
-using BTD_Mod_Helper.Api.Helpers;
+using BTD_Mod_Helper.Api.Enums;
 using BTD_Mod_Helper.Extensions;
 using UnityEngine;
 using static Assets.Scripts.Simulation.Towers.Behaviors.ParagonTower;
 
 namespace SacrificeHelper;
 
-public class Utils
+public static class Utils
 {
     public static void DefaultTemple(UpgradeModel upgradeModel)
     {
-        upgradeModel.confirmation = "Sun Temple";
-        upgradeModel.cost = CostHelper.CostForDifficulty(100000, InGame.instance);
+        upgradeModel.confirmation = UpgradeType.SunTemple;
+        upgradeModel.cost = 5 * (int) Math.Round(upgradeModel.cost / SacrificeHelperMod.TempleAlternateCostMod / 5);
     }
 
     public static void ModifyTemple(UpgradeModel upgradeModel)
     {
         upgradeModel.confirmation = "";
-        upgradeModel.cost = CostHelper.CostForDifficulty(SacrificeHelperMod.TempleAlternateCost, InGame.instance);
+        upgradeModel.cost = 5 * (int) Math.Round(upgradeModel.cost * SacrificeHelperMod.TempleAlternateCostMod / 5);
     }
 
     public static void DefaultGod(UpgradeModel upgradeModel)
     {
-        upgradeModel.confirmation = "True Sun Temple";
-        upgradeModel.cost = CostHelper.CostForDifficulty(500000, InGame.instance);
+        upgradeModel.confirmation = UpgradeType.TrueSunGod;
+        upgradeModel.cost = 5 * (int) Math.Round(upgradeModel.cost / SacrificeHelperMod.GodAlternateCostMod / 5);
     }
 
     public static void ModifyGod(UpgradeModel upgradeModel)
     {
         upgradeModel.confirmation = "";
-        upgradeModel.cost = CostHelper.CostForDifficulty(SacrificeHelperMod.GodAlternateCost, InGame.instance);
+        upgradeModel.cost = 5 * (int) Math.Round(upgradeModel.cost * SacrificeHelperMod.GodAlternateCostMod / 5);
     }
 
     public static Dictionary<string, Color> GetColors(Dictionary<string, float> worths, bool god)
@@ -89,48 +91,48 @@ public class Utils
         return ret;
     }
 
-    public static Dictionary<string, float> GetTowerWorths(Tower tower)
-    {
-        return new Dictionary<string, float>
-        {
-            ["Primary"] = GetTowerSetWorth("Primary", tower),
-            ["Military"] = GetTowerSetWorth("Military", tower),
-            ["Magic"] = GetTowerSetWorth("Magic", tower),
-            ["Support"] = GetTowerSetWorth("Support", tower)
-        };
-    }
+    public static Dictionary<string, float> GetTowerWorths(Tower tower) =>
+        TowerSetType.All.ToDictionary(s => s, s => GetTowerSetWorth(s, tower));
 
-    private static float GetTowerSetWorth(string towerSet, Tower tower)
-    {
-        return InGame.instance.GetTowerManager()
-            .GetTowersInRange(tower.Position, tower.towerModel.range)
-            .ToList()
-            .Where(t => t.towerModel.towerSet == towerSet && t.Id != tower.Id)
-            .Sum(t => t.worth);
-    }
+    private static float GetTowerSetWorth(string towerSet, Tower tower) => InGame.instance.GetTowerManager()
+        .GetTowersInRange(tower.Position, tower.towerModel.range)
+        .ToList()
+        .Where(t => t.towerModel.towerSet == towerSet && t.Id != tower.Id)
+        .Sum(t => t.worth);
 
-    private static ParagonTower FakeParagonTower(Tower tower)
+    private static ParagonTower FakeParagonTower(Tower tower) => new()
     {
-        var paragonTower = new ParagonTower
-        {
-            Sim = tower.Sim
-        };
-        paragonTower.Initialise(tower.entity, tower.model);
-        return paragonTower;
-    }
+        Sim = tower.Sim,
+        entity = tower.entity,
+        model = tower.model,
+        tower = tower,
+        isActive = true,
+        activeAt = -1
+    };
 
     public static int GetParagonDegree(TowerToSimulation tower, out InvestmentInfo investmentInfo)
     {
+        var degreeDataModel = InGame.instance.GetGameModel().paragonDegreeDataModel;
+        var degree = 0;
         var index = 0;
+        investmentInfo = default;
+
+        var paragonCost = tower.GetUpgradeCost(0, 6, -1, true);
+
+        // TODO seems like a bug with BTD6, should the paragon upgrade cost really be included ???
+        tower.tower.worth += paragonCost;
+
         var paragonTower = FakeParagonTower(tower.tower);
         investmentInfo = InGame.instance.GetAllTowerToSim()
-            .Where(tts => tts.Def.baseId == tower.Def.baseId)
-            .Select(tts => paragonTower.GetTowerInvestment(tts.tower, tts.Def.tier >= 5 ? index++ : index))
+            .Where(tts => tts.Def.baseId == tower.Def.baseId || tts.Def.GetChild<ParagonSacrificeBonusModel>() != null)
+            .OrderBy(tts => paragonTower.GetTowerInvestment(tts.tower, 3).totalInvestment)
+            .Select(tts => paragonTower.GetTowerInvestment(tts.tower, tts.Def.tier >= 5 ? index++ : 3))
             .Aggregate(paragonTower.CombineInvestments);
 
-        var requirements = InGame.instance.GetGameModel().paragonDegreeDataModel.powerDegreeRequirements;
+        tower.tower.worth -= paragonCost;
 
-        var degree = 0;
+        var requirements = degreeDataModel.powerDegreeRequirements;
+
         while (investmentInfo.totalInvestment >= requirements[degree])
         {
             degree++;
@@ -140,7 +142,6 @@ public class Utils
             }
         }
 
-        paragonTower.Destroy();
         return degree;
     }
 }
