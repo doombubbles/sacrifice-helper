@@ -107,7 +107,7 @@ public class SacrificeHelperUI : MonoBehaviour
 
     private void UpdateParagonStuff(TowerToSimulation tower)
     {
-        var canUpgradeToParagon = tower.CanUpgradeToParagon();
+        var canUpgradeToParagon = tower.CanUpgradeToParagon(true);
         paragonStuff.SetActive(canUpgradeToParagon);
         if (canUpgradeToParagon)
         {
