@@ -1,6 +1,6 @@
-﻿using Assets.Scripts.Models;
-using Assets.Scripts.Simulation.Towers.Behaviors;
-using Assets.Scripts.Unity.UI_New.InGame.TowerSelectionMenu;
+﻿using Il2CppAssets.Scripts.Models;
+using Il2CppAssets.Scripts.Simulation.Towers.Behaviors;
+using Il2CppAssets.Scripts.Unity.UI_New.InGame.TowerSelectionMenu;
 using BTD_Mod_Helper;
 using BTD_Mod_Helper.Api;
 using BTD_Mod_Helper.Api.Components;

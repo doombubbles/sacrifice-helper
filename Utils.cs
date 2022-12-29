@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Assets.Scripts.Models.Towers.Behaviors;
-using Assets.Scripts.Models.Towers.Upgrades;
-using Assets.Scripts.Simulation.Towers;
-using Assets.Scripts.Simulation.Towers.Behaviors;
-using Assets.Scripts.Unity.Bridge;
-using Assets.Scripts.Unity.UI_New.InGame;
+using Il2CppAssets.Scripts.Models.Towers.Behaviors;
+using Il2CppAssets.Scripts.Models.Towers.Upgrades;
+using Il2CppAssets.Scripts.Simulation.Towers;
+using Il2CppAssets.Scripts.Simulation.Towers.Behaviors;
+using Il2CppAssets.Scripts.Unity.Bridge;
+using Il2CppAssets.Scripts.Unity.UI_New.InGame;
 using BTD_Mod_Helper.Api.Enums;
 using BTD_Mod_Helper.Extensions;
 using UnityEngine;
-using static Assets.Scripts.Simulation.Towers.Behaviors.ParagonTower;
 
 namespace SacrificeHelper;
 
@@ -97,7 +96,7 @@ public static class Utils
     private static float GetTowerSetWorth(string towerSet, Tower tower) => InGame.instance.GetTowerManager()
         .GetTowersInRange(tower.Position, tower.towerModel.range)
         .ToList()
-        .Where(t => t.towerModel.towerSet == towerSet && t.Id != tower.Id)
+        .Where(t => t.towerModel.towerSet.ToString() == towerSet && t.Id != tower.Id)
         .Sum(t => t.worth);
 
     private static ParagonTower FakeParagonTower(Tower tower) => new()
@@ -110,7 +109,7 @@ public static class Utils
         activeAt = -1
     };
 
-    public static int GetParagonDegree(TowerToSimulation tower, out InvestmentInfo investmentInfo)
+    public static int GetParagonDegree(TowerToSimulation tower, out ParagonTower.InvestmentInfo investmentInfo)
     {
         var degreeDataModel = InGame.instance.GetGameModel().paragonDegreeDataModel;
         var degree = 0;
