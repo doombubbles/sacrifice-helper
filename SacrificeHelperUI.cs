@@ -93,16 +93,19 @@ public class SacrificeHelperUI : MonoBehaviour
 
     public void TowerInfoChanged()
     {
-        var tower = manager.towerSelectionMenu.selectedTower;
-        if (tower == null)
+        if (manager.selectionMenu.Is(out TowerSelectionMenu menu))
         {
-            ModHelper.Warning<SacrificeHelperMod>("Couldn't update Paragon Helper UI because tower was null");
-            return;
-        }
+            var tower = menu.selectedTower;
+            if (tower == null)
+            {
+                ModHelper.Warning<SacrificeHelperMod>("Couldn't update Paragon Helper UI because tower was null");
+                return;
+            }
 
-        UpdateParagonStuff(tower);
-        UpdateTempleStuff(tower);
-        UpdateExtraInfo();
+            UpdateParagonStuff(tower);
+            UpdateTempleStuff(tower);
+            UpdateExtraInfo();
+        }
     }
 
     private void UpdateParagonStuff(TowerToSimulation tower)
@@ -155,6 +158,8 @@ public class SacrificeHelperUI : MonoBehaviour
 
     private void UpdateUpgradeCosts()
     {
+        if (!manager.selectionMenu.Is(out TowerSelectionMenu menu)) return;
+
         var gameModel = InGame.instance.GetGameModel();
         var templeUpgrade = gameModel.GetUpgrade(SunTemple);
         var godUpgrade = gameModel.GetUpgrade(TrueSunGod);
@@ -169,9 +174,9 @@ public class SacrificeHelperUI : MonoBehaviour
             Utils.DefaultGod(godUpgrade);
         }
 
-        for (var i = 0; i < manager.towerSelectionMenu.upgradeButtons.Count; i++)
+        for (var i = 0; i < menu.upgradeButtons.Count; i++)
         {
-            var upgradeButton = manager.towerSelectionMenu.upgradeButtons[i];
+            var upgradeButton = menu.upgradeButtons[i];
             upgradeButton.UpdateCost();
             upgradeButton.UpdateVisuals(i, false);
         }

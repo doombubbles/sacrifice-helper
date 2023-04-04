@@ -90,13 +90,18 @@ public static class Utils
         return ret;
     }
 
+    public static bool IsValidTower(Tower tower) => !tower.towerModel.isPowerTower &&
+                                                    !tower.towerModel.isGeraldoItem &&
+                                                    !tower.towerModel.IsBeastHandlerPet &&
+                                                    tower.towerModel.baseId != "TempleBase-TempleBase";
+
     public static Dictionary<string, float> GetTowerWorths(Tower tower) =>
         TowerSetType.All.ToDictionary(s => s, s => GetTowerSetWorth(s, tower));
 
     private static float GetTowerSetWorth(string towerSet, Tower tower) => InGame.instance.GetTowerManager()
         .GetTowersInRange(tower.Position, tower.towerModel.range)
         .ToList()
-        .Where(t => t.towerModel.towerSet.ToString() == towerSet && t.Id != tower.Id)
+        .Where(t => t.towerModel.towerSet.ToString() == towerSet && t.Id != tower.Id && IsValidTower(t))
         .Sum(t => t.worth);
 
     private static ParagonTower FakeParagonTower(Tower tower) => new()
