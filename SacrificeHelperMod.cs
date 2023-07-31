@@ -6,7 +6,10 @@ using BTD_Mod_Helper.Api;
 using BTD_Mod_Helper.Api.Components;
 using BTD_Mod_Helper.Api.Enums;
 using BTD_Mod_Helper.Api.ModOptions;
+using BTD_Mod_Helper.Extensions;
 using HarmonyLib;
+using Il2CppAssets.Scripts.Unity.UI_New.InGame;
+using Il2CppAssets.Scripts.Unity.UI_New.InGame.TowerSelectionMenu.TowerSelectionMenuThemes;
 using MelonLoader;
 using SacrificeHelper;
 
@@ -164,20 +167,33 @@ public class SacrificeHelperMod : BloonsTD6Mod
         {
             var themeManager = __instance.themeManager;
             var currentTheme = themeManager.CurrentTheme;
-            if (currentTheme == null)
-            {
-                TaskScheduler.ScheduleTask(() => Postfix(__instance), () => themeManager.CurrentTheme != null);
-                return;
-            }
+            
+            if (currentTheme == null) return;
 
             var ui = currentTheme.GetComponent<SacrificeHelperUI>();
+            if (ui != null)
+            {
+                ui.TowerInfoChanged();
+            }
+        }
+    }
+    
+    
+    [HarmonyPatch(typeof(MenuThemeManager), nameof(MenuThemeManager.SetTheme))]
+    internal static class MenuThemeManager_SetTheme
+    {
+        [HarmonyPostfix]
+        private static void Postfix(MenuThemeManager __instance, BaseTSMTheme newTheme)
+        {
+            if (!__instance.selectionMenu.Is(out TowerSelectionMenu menu)) return;
+
+            var ui = newTheme.GetComponent<SacrificeHelperUI>();
             if (ui == null)
             {
-                ui = currentTheme.gameObject.AddComponent<SacrificeHelperUI>();
-                ui.Initialise(themeManager);
+                ui = newTheme.gameObject.AddComponent<SacrificeHelperUI>();
+                ui.Initialise(menu);
+                ui.TowerInfoChanged();
             }
-
-            ui.TowerInfoChanged();
         }
     }
 }

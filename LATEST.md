@@ -1,1 +1,1 @@
-- Fixed for BTD6 v36
+- Fixed Paragon costs getting included for Temple Sacrifice UI

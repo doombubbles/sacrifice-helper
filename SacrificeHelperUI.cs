@@ -26,7 +26,7 @@ public class SacrificeHelperUI : MonoBehaviour
 
     private static bool showingExtraParagonInfo;
 
-    public TowerSelectionMenuThemeManager manager;
+    public TowerSelectionMenu menu;
 
     private ModHelperPanel paragonStuff;
     private ModHelperButton degreeButton;
@@ -43,9 +43,9 @@ public class SacrificeHelperUI : MonoBehaviour
     {
     }
 
-    public void Initialise(TowerSelectionMenuThemeManager themeManager)
+    public void Initialise(TowerSelectionMenu towerSelectionMenu)
     {
-        manager = themeManager;
+        menu = towerSelectionMenu;
 
         CreateParagonStuff();
         CreateTempleStuff();
@@ -54,7 +54,7 @@ public class SacrificeHelperUI : MonoBehaviour
     private void CreateParagonStuff()
     {
         paragonStuff = gameObject.AddModHelperPanel(new Info("ParagonStuff", InfoPreset.FillParent));
-        degreeButton = paragonStuff.AddButton(new Info("ParagonButton", 340, -100, 130),
+        degreeButton = paragonStuff.AddButton(new Info("ParagonButton", 375, -75, 135),
             UpgradeContainerParagon, new Action(() =>
             {
                 showingExtraParagonInfo = !showingExtraParagonInfo;
@@ -73,14 +73,14 @@ public class SacrificeHelperUI : MonoBehaviour
     private void CreateTempleStuff()
     {
         templeStuff = gameObject.AddModHelperPanel(new Info("TempleStuff", InfoPreset.FillParent));
-        sacrificeToggle = templeStuff.AddButton(new Info("TempleButton", 340, -100, 130),
+        sacrificeToggle = templeStuff.AddButton(new Info("TempleButton", 375, -75, 120),
             NotificationYellow, new Action(() =>
             {
                 SacrificeHelperMod.templeSacrificesOff = !SacrificeHelperMod.templeSacrificesOff;
                 UpdateUpgradeCosts();
                 UpdateExtraInfo();
             }));
-        sacrificeToggle.AddImage(new Info("SacrificeIcon", 90), BuffIconBloodSacrifice);
+        sacrificeToggle.AddImage(new Info("SacrificeIcon", 80), BuffIconBloodSacrifice);
 
         extraSacrificeInfo = templeStuff.AddPanel(new Info("ExtraSacrificeInfo", 50, -50, InfoWidth)
         {
@@ -93,19 +93,16 @@ public class SacrificeHelperUI : MonoBehaviour
 
     public void TowerInfoChanged()
     {
-        if (manager.selectionMenu.Is(out TowerSelectionMenu menu))
+        var tower = menu.selectedTower;
+        if (tower == null)
         {
-            var tower = menu.selectedTower;
-            if (tower == null)
-            {
-                ModHelper.Warning<SacrificeHelperMod>("Couldn't update Paragon Helper UI because tower was null");
-                return;
-            }
-
-            UpdateParagonStuff(tower);
-            UpdateTempleStuff(tower);
-            UpdateExtraInfo();
+            ModHelper.Warning<SacrificeHelperMod>("Couldn't update Paragon Helper UI because tower was null");
+            return;
         }
+
+        UpdateParagonStuff(tower);
+        UpdateTempleStuff(tower);
+        UpdateExtraInfo();
     }
 
     private void UpdateParagonStuff(TowerToSimulation tower)
@@ -158,8 +155,6 @@ public class SacrificeHelperUI : MonoBehaviour
 
     private void UpdateUpgradeCosts()
     {
-        if (!manager.selectionMenu.Is(out TowerSelectionMenu menu)) return;
-
         var gameModel = InGame.instance.GetGameModel();
         var templeUpgrade = gameModel.GetUpgrade(SunTemple);
         var godUpgrade = gameModel.GetUpgrade(TrueSunGod);

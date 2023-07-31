@@ -93,6 +93,7 @@ public static class Utils
     public static bool IsValidTower(Tower tower) => !tower.towerModel.isPowerTower &&
                                                     !tower.towerModel.isGeraldoItem &&
                                                     !tower.towerModel.IsBeastHandlerPet &&
+                                                    !tower.towerModel.isParagon &&
                                                     tower.towerModel.baseId != "TempleBase-TempleBase";
 
     public static Dictionary<string, float> GetTowerWorths(Tower tower) =>
