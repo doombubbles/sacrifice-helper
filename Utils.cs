@@ -115,7 +115,7 @@ public static class Utils
         activeAt = -1
     };
 
-    public static int GetParagonDegree(TowerToSimulation tower, out ParagonTower.InvestmentInfo investmentInfo)
+    public static int GetParagonDegree(TowerToSimulation tower, out ParagonTower.InvestmentInfo investmentInfo, float bonus = 0)
     {
         var degreeDataModel = InGame.instance.GetGameModel().paragonDegreeDataModel;
         var degree = 0;
@@ -124,17 +124,23 @@ public static class Utils
 
         var paragonCost = tower.GetUpgradeCost(0, 6, -1, true);
 
-        // TODO seems like a bug with BTD6, should the paragon upgrade cost really be included ???
-        tower.tower.worth += paragonCost;
-
         var paragonTower = FakeParagonTower(tower.tower);
-        investmentInfo = InGame.instance.GetAllTowerToSim()
-            .Where(tts => tts.Def.baseId == tower.Def.baseId || tts.Def.GetChild<ParagonSacrificeBonusModel>() != null)
-            .OrderBy(tts => paragonTower.GetTowerInvestment(tts.tower, 3).totalInvestment)
-            .Select(tts => paragonTower.GetTowerInvestment(tts.tower, tts.Def.tier >= 5 ? index++ : 3))
-            .Aggregate(paragonTower.CombineInvestments);
 
-        tower.tower.worth -= paragonCost;
+        paragonTower.upgradeCost = paragonCost;
+
+        var bonusInvestment = new ParagonTower.InvestmentInfo
+        {
+            powerFromMoneySpent = (bonus * degreeDataModel.moneySpentOverX) /
+                                  ((1 + degreeDataModel.paidContributionPenalty) * paragonCost)
+        };
+
+        investmentInfo = InGame.instance.GetAllTowerToSim()
+            .Where(tts =>
+                tts.Def.baseId == tower.Def.baseId || tts.Def.GetChild<ParagonSacrificeBonusModel>() != null)
+            .OrderBy(tts => paragonTower.GetTowerInvestment(tts.tower).totalInvestment)
+            .Select(tts => paragonTower.GetTowerInvestment(tts.tower, tts.Def.tier >= 5 ? index++ : 3))
+            .Aggregate(bonusInvestment, paragonTower.CombineInvestments);
+
 
         var requirements = degreeDataModel.powerDegreeRequirements;
 

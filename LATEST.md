@@ -1,1 +1,3 @@
-- Fixed Paragon costs getting included for Temple Sacrifice UI
+- Updated degree calculations for v39 changes
+- Added Degree Indicator to the paragon investment slider
+- Added mod setting to control the default Slider Contribution Penalty of 5%
