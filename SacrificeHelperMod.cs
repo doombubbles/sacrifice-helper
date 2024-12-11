@@ -1,20 +1,12 @@
 ﻿using Il2CppAssets.Scripts.Models;
 using Il2CppAssets.Scripts.Simulation.Towers.Behaviors;
-using Il2CppAssets.Scripts.Unity.UI_New.InGame.TowerSelectionMenu;
 using BTD_Mod_Helper;
 using BTD_Mod_Helper.Api.Components;
 using BTD_Mod_Helper.Api.Enums;
 using BTD_Mod_Helper.Api.ModOptions;
-using BTD_Mod_Helper.Extensions;
 using HarmonyLib;
-using Il2Cpp;
-using Il2CppAssets.Scripts.Unity.UI_New.InGame;
-using Il2CppAssets.Scripts.Unity.UI_New.InGame.TowerSelectionMenu.TowerSelectionMenuThemes;
-using Il2CppAssets.Scripts.Unity.UI_New.Popups;
-using Il2CppAssets.Scripts.Unity.UI_New.Utils;
 using MelonLoader;
 using SacrificeHelper;
-using UnityEngine;
 
 [assembly: MelonInfo(typeof(SacrificeHelperMod), ModHelperData.Name, ModHelperData.Version, ModHelperData.RepoOwner)]
 [assembly: MelonGame("Ninja Kiwi", "BloonsTD6")]
@@ -168,9 +160,9 @@ public class SacrificeHelperMod : BloonsTD6Mod
         degreeData.moneySpentOverX = CashScaleFactor;
         degreeData.nonTier5TowersMultByX = NonTier5ScaleFactor;
         degreeData.tier5TowersMultByX = Tier5ScaleFactor;
-        
+
         degreeData.paidContributionPenalty = SliderContributionPenalty;
-        
+
         templeSacrificesOff = false;
     }
 
@@ -179,79 +171,5 @@ public class SacrificeHelperMod : BloonsTD6Mod
     {
         [HarmonyPrefix]
         public static bool Prefix() => !templeSacrificesOff;
-    }
-
-    [HarmonyPatch(typeof(TowerSelectionMenu), nameof(TowerSelectionMenu.UpdateTower))]
-    internal static class TowerSelectionMenu_UpdateTower
-    {
-        [HarmonyPostfix]
-        private static void Postfix(TowerSelectionMenu __instance)
-        {
-            var themeManager = __instance.themeManager;
-            var currentTheme = themeManager.CurrentTheme;
-
-            if (currentTheme == null) return;
-
-            var ui = currentTheme.GetComponent<SacrificeHelperUI>();
-            if (ui != null)
-            {
-                ui.TowerInfoChanged();
-            }
-        }
-    }
-
-
-    [HarmonyPatch(typeof(MenuThemeManager), nameof(MenuThemeManager.SetTheme))]
-    internal static class MenuThemeManager_SetTheme
-    {
-        [HarmonyPostfix]
-        private static void Postfix(MenuThemeManager __instance, BaseTSMTheme newTheme)
-        {
-            if (!__instance.selectionMenu.Is(out TowerSelectionMenu menu)) return;
-
-            var ui = newTheme.GetComponent<SacrificeHelperUI>();
-            if (ui == null)
-            {
-                ui = newTheme.gameObject.AddComponent<SacrificeHelperUI>();
-                ui.Initialise(menu);
-                ui.TowerInfoChanged();
-            }
-        }
-    }
-
-    [HarmonyPatch(typeof(ParagonConfirmationPopup), nameof(ParagonConfirmationPopup.UpdateCurrentInvestment))]
-    internal static class ParagonConfirmationPopup_UpdateCurrentInvestment
-    {
-        [HarmonyPostfix]
-        private static void Postfix(ParagonConfirmationPopup __instance, float current)
-        {
-            var tower = TowerSelectionMenu.instance.selectedTower;
-
-            var degree = Utils.GetParagonDegree(tower, out _, current);
-
-            var text = __instance.transform.GetComponentFromChildrenByName<NK_TextMeshProUGUI>("DegreeText");
-            text.SetText(degree.ToString());
-            text.color = degree >= 100 ? Color.green : Color.white;
-        }
-    }
-
-    [HarmonyPatch(typeof(ParagonConfirmationPopup), nameof(ParagonConfirmationPopup.Init),
-        typeof(Il2CppSystem.Action<double>), typeof(Il2CppSystem.Action), typeof(int), typeof(int), typeof(int),
-        typeof(PopupScreen.BackGround), typeof(Popup.TransitionAnim))]
-    internal static class ParagonConfirmationPopup_Init
-    {
-        [HarmonyPostfix]
-        private static void Postfix(ParagonConfirmationPopup __instance)
-        {
-            var tower = TowerSelectionMenu.instance.selectedTower;
-            var degree = Utils.GetParagonDegree(tower, out _);
-
-            var mainObject = __instance.animator.gameObject;
-
-            var indicator = ModHelperImage.Create(new Info("DegreeIndicator", 0, -450, 250, 250),
-                VanillaSprites.UpgradeContainerParagon);
-            mainObject.AddModHelperComponent(indicator);
-            indicator.AddText(new Info("DegreeText", InfoPreset.FillParent), degree.ToString(), 100f);
-        }
     }
 }

@@ -3,7 +3,7 @@
         <TargetFramework>net6.0</TargetFramework>
         <RootNamespace>SacrificeHelper</RootNamespace>
         <Configurations>Debug;Release</Configurations>
-        <Nullable>warnings</Nullable>
+        <Nullable>enable</Nullable>
         <AssemblyName>SacrificeHelper</AssemblyName>
         <LangVersion>latest</LangVersion>
         <Optimize>False</Optimize>
