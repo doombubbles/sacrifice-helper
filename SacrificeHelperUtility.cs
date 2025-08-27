@@ -4,13 +4,13 @@ using System.Linq;
 using BTD_Mod_Helper;
 using BTD_Mod_Helper.Api.Components;
 using BTD_Mod_Helper.Api.Enums;
-using BTD_Mod_Helper.Api.Helpers;
 using BTD_Mod_Helper.Api.ModOptions;
 using BTD_Mod_Helper.Extensions;
 using HarmonyLib;
 using Il2Cpp;
 using Il2CppAssets.Scripts.Data.ParagonData;
 using Il2CppAssets.Scripts.Models.Towers.Behaviors;
+using Il2CppAssets.Scripts.Models.Towers.Upgrades;
 using Il2CppAssets.Scripts.Simulation.Towers;
 using Il2CppAssets.Scripts.Simulation.Towers.Behaviors;
 using Il2CppAssets.Scripts.Unity;
@@ -25,7 +25,6 @@ using MelonLoader;
 using UnityEngine;
 using static BTD_Mod_Helper.Api.Enums.VanillaSprites;
 
-
 #if USEFUL_UTILITIES
 namespace UsefulUtilities.Utilities;
 #else
@@ -33,11 +32,11 @@ namespace SacrificeHelper;
 #endif
 
 #if USEFUL_UTILITIES
-using BTD_Mod_Helper.Api.Data;
-using Il2CppInterop.Runtime.InteropTypes.Arrays;
 
 public class SacrificeHelper : UsefulUtility
 #else
+using BTD_Mod_Helper.Api.Helpers;
+using Il2CppAssets.Scripts.Unity;
 using BTD_Mod_Helper.Api.Data;
 using Il2CppAssets.Scripts.Models.Towers.Upgrades;
 
@@ -105,7 +104,7 @@ public class SacrificeHelperUtility : IModSettings
 
 
     [RegisterTypeInIl2Cpp(false)]
-    public class SacrificeHelperUI : MonoBehaviour
+    public class SacrificeHelperUI(IntPtr ptr) : MonoBehaviour(ptr)
     {
         public const int InfoWidth = 500;
         public const int InfoHeight = 100;
@@ -134,10 +133,6 @@ public class SacrificeHelperUtility : IModSettings
         private ModHelperButton sacrificeToggle = null!;
         private ModHelperPanel extraSacrificeInfo = null!;
         private Il2CppSystem.Collections.Generic.List<ModHelperText> sacrificeTowerSets = null!;
-
-        public SacrificeHelperUI(IntPtr ptr) : base(ptr)
-        {
-        }
 
         public void Initialise(TowerSelectionMenu towerSelectionMenu)
         {
@@ -316,20 +311,24 @@ public class SacrificeHelperUtility : IModSettings
 
         static ParagonDetail()
         {
-            AllDetails = new List<ParagonDetail>
-            {
+            AllDetails =
+            [
                 new("Money Spent", VanillaSprites.CoinIcon, info => info.powerFromMoneySpent,
                     model => model.maxPowerFromMoneySpent),
+
                 new("Pops / Generated Cash", VanillaSprites.PopIcon, info => info.powerFromPops,
                     model => model.maxPowerFromPops),
+
                 new("Non Tier 5 Upgrades Purchased", VanillaSprites.UpgradeContainerGrey,
                     info => info.powerFromNonTier5Tiers, model => model.maxPowerFromNonTier5Count,
                     image => image.AddText(new Info("Text", InfoPreset.FillParent), "<5", 69)),
+
                 new("Having Tier 5 Towers", VanillaSprites.UpgradeContainerTier5, info => info.powerFromTier5Count,
                     model => model.maxPowerFromTier5Count,
                     image => image.AddText(new Info("Text", InfoPreset.FillParent), "5", 69)),
+
                 new("Geraldo Totems", VanillaSprites.ParagonPowerTotem, info => info.powerFromBonus)
-            };
+            ];
         }
 
         public string Name { get; }
@@ -430,13 +429,10 @@ public class SacrificeHelperUtility : IModSettings
             {
                 var worst = "";
                 var min = float.MaxValue;
-                foreach (var key in worths.Keys)
+                foreach (var key in worths.Keys.Where(key => worths[key] < min))
                 {
-                    if (worths[key] < min)
-                    {
-                        worst = key;
-                        min = worths[key];
-                    }
+                    worst = key;
+                    min = worths[key];
                 }
 
                 ret[worst] = Color.red;
@@ -499,6 +495,15 @@ public class SacrificeHelperUtility : IModSettings
             activeAt = -1
         };
 
+        public static UpgradeModel GetParagonUpgrade(Tower tower)
+        {
+            var gameModel = InGame.instance != null ? InGame.Bridge.Model : Game.instance.model;
+
+            return tower.IsMutatedBy("HonoraryParagon")
+                       ? gameModel.GetUpgrade("HonoraryParagon_" + tower.towerModel.name)
+                       : gameModel.GetParagonUpgradeForTowerId(tower.towerModel.baseId);
+        }
+
         public static long GetParagonDegree(TowerToSimulation tower, out ParagonTower.InvestmentInfo investmentInfo,
             float bonus = 0)
         {
@@ -506,15 +511,14 @@ public class SacrificeHelperUtility : IModSettings
             var degreeDataModel = gameModel.paragonDegreeDataModel;
 
             var paragonCost = tower.IsParagon
-                ? gameModel.GetParagonUpgradeForTowerId(tower.Def.baseId).cost
-                : tower.GetUpgradeCost(0, 6, -1, true);
+                                  ? GetParagonUpgrade(tower.tower).cost
+                                  : tower.GetUpgradeCost(0, 6, -1, true);
+
             var powerFromMoneySpent = bonus * degreeDataModel.moneySpentOverX /
                                       ((1 + degreeDataModel.paidContributionPenalty) * paragonCost);
-
             var bonusInvestment = new ParagonTower.InvestmentInfo
             {
-                powerFromMoneySpent = bonus * degreeDataModel.moneySpentOverX /
-                                      ((1 + degreeDataModel.paidContributionPenalty) * paragonCost)
+                powerFromMoneySpent = powerFromMoneySpent
             };
 
             if (tower.tower.entity.GetBehavior<ParagonTower>().Is(out var paragonTower))
@@ -531,8 +535,10 @@ public class SacrificeHelperUtility : IModSettings
 
                 var index = 0;
                 investmentInfo = InGame.instance.GetAllTowerToSim()
-                    .Where(tts =>
-                        tts.Def.baseId == tower.Def.baseId || tts.Def.GetChild<ParagonSacrificeBonusModel>() != null)
+                    .Where(tts => !tts.IsParagon &&
+                                  !tts.tower.IsMutatedBy("DoorGunnerMutator") &&
+                                  (tts.Def.baseId == tower.Def.baseId ||
+                                   tts.Def.GetChild<ParagonSacrificeBonusModel>() != null))
                     .OrderBy(tts => paragonTower.GetTowerInvestment(tts.tower).totalInvestment)
                     .Select(tts => paragonTower.GetTowerInvestment(tts.tower, tts.Def.tier >= 5 ? index++ : 3))
                     .Aggregate(bonusInvestment, paragonTower.CombineInvestments);
@@ -569,7 +575,8 @@ public class SacrificeHelperUtility : IModSettings
         {
             var tower = TowerSelectionMenu.instance.selectedTower;
             var bonus = current;
-            var upgradeCost = InGame.Bridge.Model.GetParagonUpgradeForTowerId(tower.Def.baseId).cost;
+            var upgradeCost = Utils.GetParagonUpgrade(tower.tower).cost;
+
             if (__instance.upgradeCost != 0 && InGame.Bridge.GetCash() < upgradeCost)
             {
                 // Handle Paragonomics negative degree
@@ -600,7 +607,7 @@ public class SacrificeHelperUtility : IModSettings
         {
             var tower = TowerSelectionMenu.instance.selectedTower;
             var bonus = 0;
-            var upgradeCost = InGame.Bridge.Model.GetParagonUpgradeForTowerId(tower.Def.baseId).cost;
+            var upgradeCost = Utils.GetParagonUpgrade(tower.tower).cost;
             if (__instance.upgradeCost != 0 && InGame.Bridge.GetCash() < upgradeCost)
             {
                 // Handle Paragonomics negative degree
