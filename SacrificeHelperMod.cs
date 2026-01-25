@@ -5,8 +5,14 @@ using BTD_Mod_Helper.Api.Components;
 using BTD_Mod_Helper.Api.Enums;
 using BTD_Mod_Helper.Api.ModOptions;
 using HarmonyLib;
+using Il2CppAssets.Scripts.Simulation.Objects;
+using Il2CppAssets.Scripts.Simulation.Towers.Mutators;
+using Il2CppSystem.Collections.Generic;
+using Il2CppSystem.IO;
 using MelonLoader;
 using SacrificeHelper;
+using BTD_Mod_Helper.Extensions;
+using Il2CppAssets.Scripts.Models.TowerSets;
 
 [assembly: MelonInfo(typeof(SacrificeHelperMod), ModHelperData.Name, ModHelperData.Version, ModHelperData.RepoOwner)]
 [assembly: MelonGame("Ninja Kiwi", "BloonsTD6")]
@@ -15,6 +21,16 @@ namespace SacrificeHelper;
 
 public class SacrificeHelperMod : BloonsTD6Mod
 {
+    public static AutoSacrificeMode AutoSacrificeMode => AutoSacrifice;
+    private static readonly ModSettingEnum<AutoSacrificeMode> AutoSacrifice = new(AutoSacrificeMode.Off)
+    {
+        description =
+            "Mode for automatically applying sacrifice benefits to temples via increasing the upgrade cost a corresponding amount instead of sacrificing nearby towers. " +
+            "Temple syntax is for example 2221 meaning all sacrifices are 50k except for Support on the Tier 4 sacrifice. " +
+            "Still works for becoming a Vengeful Temple.",
+        labelFunction = mode => mode.ToString().Replace("Sacrifice", "Sacrifice ")
+    };
+
     public static readonly ModSettingDouble SliderContributionPenalty = new(0.05f)
     {
         description = "The popup added in BTD6 v39 comes with a default 5% penalty to manually invested cash.\n" +
@@ -164,12 +180,57 @@ public class SacrificeHelperMod : BloonsTD6Mod
         degreeData.paidContributionPenalty = SliderContributionPenalty;
 
         templeSacrificesOff = false;
+
+        SacrificeHelperUtility.UpdateUpgradeCosts(result);
     }
 
     [HarmonyPatch(typeof(MonkeyTemple), nameof(MonkeyTemple.StartSacrifice))]
     public class MonkeyTemple_StartSacrifice
     {
         [HarmonyPrefix]
-        public static bool Prefix() => !templeSacrificesOff;
+        public static bool Prefix() => !templeSacrificesOff && AutoSacrificeMode == AutoSacrificeMode.Off;
+
+        [HarmonyPostfix]
+        public static void Postfix(MonkeyTemple __instance)
+        {
+            if (AutoSacrificeMode == AutoSacrificeMode.Off) return;
+
+            __instance.selectedTowers ??= new();
+
+            foreach (var templeTowerMutatorGroup in __instance.entity
+                         .GetBehaviorsInDependants<TempleTowerMutatorGroup>().ToArray())
+            {
+                if (__instance.monkeyTempleModel.templeId != "TrueTemple" &&
+                    AutoSacrificeMode == templeTowerMutatorGroup.templeTowerMutatorGroupModel.towerSet switch
+                    {
+                        TowerSet.Primary => AutoSacrificeMode.Sacrifice1222,
+                        TowerSet.Military => AutoSacrificeMode.Sacrifice2122,
+                        TowerSet.Magic => AutoSacrificeMode.Sacrifice2212,
+                        TowerSet.Support => AutoSacrificeMode.Sacrifice2221,
+                        _ => AutoSacrificeMode.Off
+                    }) continue;
+
+                var list = new List<RootBehavior>();
+                __instance.entity.AddBehaviorsOrUpdateModels(list,
+                    templeTowerMutatorGroup.templeTowerMutatorGroupModel.mutators.ToArray());
+                foreach (var rootBehavior in list)
+                {
+                    if (rootBehavior.Is(out TowerMutator mutator) && mutator.EvaluateConditional())
+                    {
+                        __instance.mutatorsToApply.Add(mutator.mutator);
+                    }
+                }
+            }
+        }
     }
+}
+
+public enum AutoSacrificeMode
+{
+    Off,
+    Sacrifice1222,
+    Sacrifice2122,
+    Sacrifice2212,
+    Sacrifice2221,
+    Sacrifice2222
 }
