@@ -11,10 +11,8 @@ using Il2Cpp;
 using Il2CppAssets.Scripts.Data.ParagonData;
 using Il2CppAssets.Scripts.Models;
 using Il2CppAssets.Scripts.Models.Towers.Behaviors;
-using Il2CppAssets.Scripts.Models.Towers.Upgrades;
 using Il2CppAssets.Scripts.Simulation.Towers;
 using Il2CppAssets.Scripts.Simulation.Towers.Behaviors;
-using Il2CppAssets.Scripts.Unity;
 using Il2CppAssets.Scripts.Unity.Bridge;
 using Il2CppAssets.Scripts.Unity.UI_New.InGame;
 using Il2CppAssets.Scripts.Unity.UI_New.InGame.TowerSelectionMenu;
@@ -141,7 +139,7 @@ public class SacrificeHelperUtility : IModSettings
         private static void ToggleShowingExtraInfo()
         {
 #if USEFUL_UTILITIES
-            showingExtraTempleInfo = !value;
+            showingExtraTempleInfo = !showingExtraTempleInfo;
 #else
             SacrificeHelperMod.templeSacrificesOff = !SacrificeHelperMod.templeSacrificesOff;
 #endif

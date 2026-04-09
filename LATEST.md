@@ -1,10 +1,1 @@
-- Added an Auto Sacrifice mod setting for Temples
-    - Mode for automatically applying sacrifice benefits to temples via increasing the upgrade cost a corresponding amount instead of sacrificing nearby towers.
-    - Temple syntax is for example 2221 meaning all sacrifices are 50k except for Support on the Tier 4 sacrifice.
-      - Off
-      - Sacrifice 1222 (+\$150,000 Tier 4, +\$200,000 Tier 5)
-      - Sacrifice 2122 (+\$150,000 Tier 4, +\$200,000 Tier 5)
-      - Sacrifice 2212 (+\$150,000 Tier 4, +\$200,000 Tier 5)
-      - Sacrifice 2221 (+\$150,000 Tier 4, +\$200,000 Tier 5)
-      - Sacrifice 2222 (+\$200,000 Tier 4, +\$200,000 Tier 5) <--- (normally not obtainable)
-    - Still works for becoming a Vengeful Temple.
+- Fixed for BTD6 v54
