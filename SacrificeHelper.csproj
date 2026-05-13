@@ -10,5 +10,9 @@
         <DebugType>embedded</DebugType>
     </PropertyGroup>
 
-    <Import Project="..\btd6.targets" />
+    <Import Project="..\btd6.targets"/>
+
+    <ItemGroup>
+        <Content Include=".github\workflows\build.yml"/>
+    </ItemGroup>
 </Project>

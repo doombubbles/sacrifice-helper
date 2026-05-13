@@ -8,9 +8,9 @@ on:
 
 env:
   PROJECT_NAME: SacrificeHelper
-  MELONLOADER_BRANCH: alpha-development
-  
+
   MOD_HELPER_NAME: Btd6ModHelper
+  MOD_HELPER_BRANCH: master
   BLOONSTD6: ./BloonsTD6
 
 jobs:

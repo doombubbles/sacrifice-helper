@@ -1,4 +1,5 @@
-﻿using Il2CppAssets.Scripts.Models;
+﻿global using BTD_Mod_Helper.Extensions;
+using Il2CppAssets.Scripts.Models;
 using Il2CppAssets.Scripts.Simulation.Towers.Behaviors;
 using BTD_Mod_Helper;
 using BTD_Mod_Helper.Api.Components;
@@ -11,7 +12,6 @@ using Il2CppSystem.Collections.Generic;
 using Il2CppSystem.IO;
 using MelonLoader;
 using SacrificeHelper;
-using BTD_Mod_Helper.Extensions;
 using Il2CppAssets.Scripts.Models.TowerSets;
 
 [assembly: MelonInfo(typeof(SacrificeHelperMod), ModHelperData.Name, ModHelperData.Version, ModHelperData.RepoOwner)]
@@ -194,6 +194,8 @@ public class SacrificeHelperMod : BloonsTD6Mod
         public static void Postfix(MonkeyTemple __instance)
         {
             if (AutoSacrificeMode == AutoSacrificeMode.Off) return;
+
+            __instance.checkTCBOO = __instance.monkeyTempleModel.checkForThereCanOnlyBeOne;
 
             __instance.selectedTowers ??= new();
 
