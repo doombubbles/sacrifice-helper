@@ -1,1 +1,1 @@
-- Fixed for BTD6 v54
+- Updated HonoraryParagons integration
