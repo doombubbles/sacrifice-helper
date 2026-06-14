@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.4.7] - 2026-06-14
+
 - Fixed a bug with Auto Sacrificed temples losing their sacrificed state when saving/loading in recent BTD6 versions
 
 ## [2.4.6] - 2026-05-26
@@ -77,7 +79,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated to Mod Helper 3.0
 - Fixed for BTD6 v32.0
 
-[unreleased]: https://github.com/doombubbles/sacrifice-helper/compare/2.4.6...HEAD
+[unreleased]: https://github.com/doombubbles/sacrifice-helper/compare/2.4.7...HEAD
+[2.4.7]: https://github.com/doombubbles/sacrifice-helper/compare/2.4.6...2.4.7
 [2.4.6]: https://github.com/doombubbles/sacrifice-helper/compare/2.4.5...2.4.6
 [2.4.5]: https://github.com/doombubbles/sacrifice-helper/compare/2.4.4...2.4.5
 [2.4.4]: https://github.com/doombubbles/sacrifice-helper/compare/2.4.3...2.4.4
