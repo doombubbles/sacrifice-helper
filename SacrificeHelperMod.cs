@@ -1,4 +1,4 @@
-﻿global using BTD_Mod_Helper.Extensions;
+global using BTD_Mod_Helper.Extensions;
 using Il2CppAssets.Scripts.Models;
 using Il2CppAssets.Scripts.Simulation.Towers.Behaviors;
 using BTD_Mod_Helper;
@@ -13,15 +13,19 @@ using Il2CppSystem.IO;
 using MelonLoader;
 using SacrificeHelper;
 using Il2CppAssets.Scripts.Models.TowerSets;
+using Il2CppSystem;
+using Enum = System.Enum;
 
 [assembly: MelonInfo(typeof(SacrificeHelperMod), ModHelperData.Name, ModHelperData.Version, ModHelperData.RepoOwner)]
 [assembly: MelonGame("Ninja Kiwi", "BloonsTD6")]
+[assembly: MelonGame("Ninja Kiwi", "BloonsTD6-Epic")]
 
 namespace SacrificeHelper;
 
 public class SacrificeHelperMod : BloonsTD6Mod
 {
     public static AutoSacrificeMode AutoSacrificeMode => AutoSacrifice;
+
     private static readonly ModSettingEnum<AutoSacrificeMode> AutoSacrifice = new(AutoSacrificeMode.Off)
     {
         description =
@@ -223,6 +227,35 @@ public class SacrificeHelperMod : BloonsTD6Mod
                     }
                 }
             }
+        }
+    }
+
+    [HarmonyPatch(typeof(MonkeyTemple), nameof(MonkeyTemple.GetSaveMetaData))]
+    internal static class MonkeyTemple_GetSaveMetaData
+    {
+        [HarmonyPrefix]
+        internal static void Prefix(MonkeyTemple __instance)
+        {
+            if (AutoSacrificeMode == AutoSacrificeMode.Off) return;
+
+            __instance.templeTowers ??= new();
+
+            if (AutoSacrificeMode != AutoSacrificeMode.Sacrifice1222)
+                __instance.templeTowers[TowerSet.Primary] = 50001;
+            if (AutoSacrificeMode != AutoSacrificeMode.Sacrifice2122)
+                __instance.templeTowers[TowerSet.Military] = 50001;
+            if (AutoSacrificeMode != AutoSacrificeMode.Sacrifice2212)
+                __instance.templeTowers[TowerSet.Magic] = 50001;
+            if (AutoSacrificeMode != AutoSacrificeMode.Sacrifice2221)
+                __instance.templeTowers[TowerSet.Support] = 50001;
+
+            if (__instance.monkeyTempleModel.templeId != "TrueTemple") return;
+
+            __instance.trueTempleTowers ??= new();
+            __instance.trueTempleTowers[TowerSet.Primary] = 50001;
+            __instance.trueTempleTowers[TowerSet.Military] = 50001;
+            __instance.trueTempleTowers[TowerSet.Magic] = 50001;
+            __instance.trueTempleTowers[TowerSet.Support] = 50001;
         }
     }
 }

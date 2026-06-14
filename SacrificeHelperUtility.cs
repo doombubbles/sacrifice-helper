@@ -9,6 +9,7 @@ using BTD_Mod_Helper.Api.Towers;
 using HarmonyLib;
 using Il2Cpp;
 using Il2CppAssets.Scripts.Data.ParagonData;
+using Il2CppAssets.Scripts.Models.Towers;
 using Il2CppAssets.Scripts.Models.Towers.Behaviors;
 using Il2CppAssets.Scripts.Simulation.Towers;
 using Il2CppAssets.Scripts.Simulation.Towers.Behaviors;
@@ -23,6 +24,7 @@ using UnityEngine;
 using static BTD_Mod_Helper.Api.Enums.VanillaSprites;
 using Il2CppAssets.Scripts.Models.Towers.Upgrades;
 using Il2CppAssets.Scripts.Models.TowerSets;
+using Il2CppSystem.IO;
 
 #if USEFUL_UTILITIES
 namespace UsefulUtilities.Utilities;
@@ -363,6 +365,13 @@ public class SacrificeHelperUtility : IModSettings
                                     AutoSacrificeMode.Sacrifice2222 => 200_000,
                                     _ => 150_000
                                 };
+
+            foreach (var templeModel in Game.instance.model.GetTowersWithBaseId(TowerType.SuperMonkey).ToArray()
+                         .Where(t => t.appliedUpgrades != null && t.appliedUpgrades.Contains(upgradeModel.name))
+                         .Select(t => t.GetBehavior<MonkeyTempleModel>()))
+            {
+                templeModel.towerGroupCount = 3;
+            }
         }
 
         public static void ModifyTemple(UpgradeModel upgradeModel)
@@ -371,6 +380,14 @@ public class SacrificeHelperUtility : IModSettings
             var baseCost = Game.instance.model.GetUpgrade(upgradeModel.name).cost;
             var mod = SacrificeHelperMod.TempleAlternateCostMod;
             upgradeModel.cost = CostHelper.CostForDifficulty((int) (baseCost * mod), InGame.instance);
+
+            foreach (var templeModel in Game.instance.model.GetTowersWithBaseId(TowerType.SuperMonkey).ToArray()
+                         .Where(t => t.appliedUpgrades != null && t.appliedUpgrades.Contains(upgradeModel.name))
+                         .Select(t => t.GetBehavior<MonkeyTempleModel>()))
+            {
+                templeModel.towerGroupCount =
+                    SacrificeHelperMod.AutoSacrificeMode == AutoSacrificeMode.Sacrifice2222 ? 4 : 3;
+            }
         }
 
         public static void DefaultGod(UpgradeModel upgradeModel)
@@ -617,6 +634,7 @@ internal static class TowerSetExt
                 {
                     yield return (TowerSet) i;
                 }
+
                 i *= 2;
             }
         }
