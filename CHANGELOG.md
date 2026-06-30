@@ -79,18 +79,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated to Mod Helper 3.0
 - Fixed for BTD6 v32.0
 
-[unreleased]: https://github.com/doombubbles/sacrifice-helper/compare/2.4.7...HEAD
-[2.4.7]: https://github.com/doombubbles/sacrifice-helper/compare/2.4.6...2.4.7
-[2.4.6]: https://github.com/doombubbles/sacrifice-helper/compare/2.4.5...2.4.6
-[2.4.5]: https://github.com/doombubbles/sacrifice-helper/compare/2.4.4...2.4.5
-[2.4.4]: https://github.com/doombubbles/sacrifice-helper/compare/2.4.3...2.4.4
-[2.4.3]: https://github.com/doombubbles/sacrifice-helper/compare/2.4.2...2.4.3
-[2.4.2]: https://github.com/doombubbles/sacrifice-helper/compare/2.4.1...2.4.2
-[2.4.1]: https://github.com/doombubbles/sacrifice-helper/compare/2.4.0...2.4.1
-[2.4.0]: https://github.com/doombubbles/sacrifice-helper/compare/2.3.4...2.4.0
-[2.3.4]: https://github.com/doombubbles/sacrifice-helper/compare/2.3.3...2.3.4
-[2.3.3]: https://github.com/doombubbles/sacrifice-helper/compare/2.3.2...2.3.3
-[2.3.2]: https://github.com/doombubbles/sacrifice-helper/compare/2.3.1...2.3.2
-[2.3.1]: https://github.com/doombubbles/sacrifice-helper/compare/2.3.0...2.3.1
-[2.3.0]: https://github.com/doombubbles/sacrifice-helper/compare/2.2.2...2.3.0
-[2.2.2]: https://github.com/doombubbles/sacrifice-helper/compare/eaefe73b217aaaef9b6043a8b1fb1bc434f8bdb3...2.2.2
+[unreleased]: https://github.com/doombubbles/SacrificeHelper/compare/2.4.7...HEAD
+[2.4.7]: https://github.com/doombubbles/SacrificeHelper/compare/2.4.6...2.4.7
+[2.4.6]: https://github.com/doombubbles/SacrificeHelper/compare/2.4.5...2.4.6
+[2.4.5]: https://github.com/doombubbles/SacrificeHelper/compare/2.4.4...2.4.5
+[2.4.4]: https://github.com/doombubbles/SacrificeHelper/compare/2.4.3...2.4.4
+[2.4.3]: https://github.com/doombubbles/SacrificeHelper/compare/2.4.2...2.4.3
+[2.4.2]: https://github.com/doombubbles/SacrificeHelper/compare/2.4.1...2.4.2
+[2.4.1]: https://github.com/doombubbles/SacrificeHelper/compare/2.4.0...2.4.1
+[2.4.0]: https://github.com/doombubbles/SacrificeHelper/compare/2.3.4...2.4.0
+[2.3.4]: https://github.com/doombubbles/SacrificeHelper/compare/2.3.3...2.3.4
+[2.3.3]: https://github.com/doombubbles/SacrificeHelper/compare/2.3.2...2.3.3
+[2.3.2]: https://github.com/doombubbles/SacrificeHelper/compare/2.3.1...2.3.2
+[2.3.1]: https://github.com/doombubbles/SacrificeHelper/compare/2.3.0...2.3.1
+[2.3.0]: https://github.com/doombubbles/SacrificeHelper/compare/2.2.2...2.3.0
+[2.2.2]: https://github.com/doombubbles/SacrificeHelper/compare/eaefe73b217aaaef9b6043a8b1fb1bc434f8bdb3...2.2.2

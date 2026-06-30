@@ -11,5 +11,6 @@ public static class ModHelperData
         "Also adds settings for customizing how sacrifices happen, such as Auto Sacrifice mode.";
 
     public const string RepoOwner = "doombubbles";
-    public const string RepoName = "sacrifice-helper";
+    public const string PrevRepoName = "sacrifice-helper";
+    public const string RepoName = "SacrificeHelper";
 }
