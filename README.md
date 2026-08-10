@@ -11,6 +11,8 @@ Also adds a display for upgrading to a Paragon Tower for what degree it will be,
 
 Additionally, this mod adds an option for the temple Sacrifices to not happen. You'll see a button in the place where the Ambidextrous Rangs buttons are to let you turn the sacrificing on or off.
 
+The Four-Category Sun Temple Sacrifices setting allows manually sacrificed Sun Temples to benefit from all four tower categories. It is disabled by default because enabling it requires a fully maxed 2222 Sun Temple, rather than a base-game 2221 Temple, to create a Vengeful True Sun God.
+
 By default, it also substantially reduces the price of these upgrades when not sacrificing, since un-sacrificed temples and gods aren't actually all that impressive. The prices $50,000 for Sun Temple and $100,000 for True Sun God by default, but those are configurable. (From some basic testing, those might even be a bit high, actually).
 
 

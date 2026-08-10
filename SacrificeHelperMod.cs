@@ -35,6 +35,16 @@ public class SacrificeHelperMod : BloonsTD6Mod
         labelFunction = mode => mode.ToString().Replace("Sacrifice", "Sacrifice ")
     };
 
+    public static readonly ModSettingBool FourCategorySunTemples = new(false)
+    {
+        displayName = "Four-Category Sun Temple Sacrifices",
+        description =
+            "Allows Sun Temples to benefit from all four tower category sacrifices instead of only three. " +
+            "Warning: When enabled, a Vengeful True Sun God requires a fully maxed 2222 Sun Temple; the base-game 2221 setup will no longer qualify.",
+        icon = VanillaSprites.SunTempleUpgradeIcon,
+        requiresRestart = true
+    };
+
     public static readonly ModSettingDouble SliderContributionPenalty = new(0.05f)
     {
         description = "The popup added in BTD6 v39 comes with a default 5% penalty to manually invested cash.\n" +

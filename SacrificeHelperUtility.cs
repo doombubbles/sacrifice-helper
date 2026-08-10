@@ -83,6 +83,14 @@ public class SacrificeHelperUtility : IModSettings
             Utils.DefaultTemple(templeUpgrade);
             Utils.DefaultGod(godUpgrade);
         }
+
+        foreach (var templeModel in gameModel.GetTowersWithBaseId(TowerType.SuperMonkey).ToArray()
+                     .Where(tower => tower.appliedUpgrades?.Contains(UpgradeType.SunTemple) == true &&
+                                     !tower.appliedUpgrades.Contains(UpgradeType.TrueSunGod))
+                     .Select(tower => tower.GetBehavior<MonkeyTempleModel>()))
+        {
+            templeModel.towerGroupCount = SacrificeHelperMod.FourCategorySunTemples ? 4 : 3;
+        }
     }
 #endif
 
@@ -366,12 +374,6 @@ public class SacrificeHelperUtility : IModSettings
                                     _ => 150_000
                                 };
 
-            foreach (var templeModel in Game.instance.model.GetTowersWithBaseId(TowerType.SuperMonkey).ToArray()
-                         .Where(t => t.appliedUpgrades != null && t.appliedUpgrades.Contains(upgradeModel.name))
-                         .Select(t => t.GetBehavior<MonkeyTempleModel>()))
-            {
-                templeModel.towerGroupCount = 3;
-            }
         }
 
         public static void ModifyTemple(UpgradeModel upgradeModel)
@@ -381,13 +383,6 @@ public class SacrificeHelperUtility : IModSettings
             var mod = SacrificeHelperMod.TempleAlternateCostMod;
             upgradeModel.cost = CostHelper.CostForDifficulty((int) (baseCost * mod), InGame.instance);
 
-            foreach (var templeModel in Game.instance.model.GetTowersWithBaseId(TowerType.SuperMonkey).ToArray()
-                         .Where(t => t.appliedUpgrades != null && t.appliedUpgrades.Contains(upgradeModel.name))
-                         .Select(t => t.GetBehavior<MonkeyTempleModel>()))
-            {
-                templeModel.towerGroupCount =
-                    SacrificeHelperMod.AutoSacrificeMode == AutoSacrificeMode.Sacrifice2222 ? 4 : 3;
-            }
         }
 
         public static void DefaultGod(UpgradeModel upgradeModel)

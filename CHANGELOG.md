@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.4.8] - 2026-08-10
+
+- Added a toggle setting for the Four-Category Sun Temple Sacrifices feature, disabled by default
+  - Enabling it allows 2222 Sun Temples, but also requires a 2222 Temple for VTSG eligibility
+
 ## [2.4.7] - 2026-06-14
 
 - Fixed a bug with Auto Sacrificed temples losing their sacrificed state when saving/loading in recent BTD6 versions
@@ -79,7 +84,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated to Mod Helper 3.0
 - Fixed for BTD6 v32.0
 
-[unreleased]: https://github.com/doombubbles/SacrificeHelper/compare/2.4.7...HEAD
+[unreleased]: https://github.com/doombubbles/SacrificeHelper/compare/2.4.8...HEAD
+[2.4.8]: https://github.com/doombubbles/SacrificeHelper/compare/2.4.7...2.4.8
 [2.4.7]: https://github.com/doombubbles/SacrificeHelper/compare/2.4.6...2.4.7
 [2.4.6]: https://github.com/doombubbles/SacrificeHelper/compare/2.4.5...2.4.6
 [2.4.5]: https://github.com/doombubbles/SacrificeHelper/compare/2.4.4...2.4.5
